@@ -1,0 +1,139 @@
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #080D19;
+  --foreground: #FFFFFF;
+  --gold: #D9AD45;
+  --gold-light: #F6D989;
+  --gold-dark: #9E7B28;
+  --card-bg: #101827;
+  --surface-bg: #141E33;
+  --border-color: #2A364F;
+  --muted: #B9B9B9;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  color-scheme: dark;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+
+/* Custom Luxury Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #080D19;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #2A364F;
+  border-radius: 4px;
+  border: 1px solid rgba(217, 173, 69, 0.2);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #D9AD45;
+}
+
+/* Luxury Typography Classes */
+.font-cinzel {
+  font-family: 'Cinzel', 'Playfair Display', Georgia, serif;
+}
+
+.font-playfair {
+  font-family: 'Playfair Display', Georgia, serif;
+}
+
+.text-gold-gradient {
+  background: linear-gradient(135deg, #FFF3C4 0%, #F6D989 30%, #D9AD45 70%, #9E7B28 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.bg-gold-gradient {
+  background: linear-gradient(135deg, #F6D989 0%, #D9AD45 50%, #9E7B28 100%);
+}
+
+.bg-gold-gradient-hover:hover {
+  background: linear-gradient(135deg, #FFF3C4 0%, #E5BE58 50%, #B89233 100%);
+}
+
+.border-gold-subtle {
+  border: 1px solid rgba(217, 173, 69, 0.25);
+}
+
+.border-gold-glow {
+  border: 1px solid rgba(217, 173, 69, 0.5);
+  box-shadow: 0 0 15px rgba(217, 173, 69, 0.15);
+}
+
+.glass-panel {
+  background: rgba(16, 24, 39, 0.75);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(217, 173, 69, 0.15);
+}
+
+.glass-panel-hover {
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.glass-panel-hover:hover {
+  border-color: rgba(217, 173, 69, 0.4);
+  box-shadow: 0 10px 30px -10px rgba(217, 173, 69, 0.2);
+  transform: translateY(-3px);
+}
+
+/* Ornate Botanical Dividers */
+.ornate-divider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.ornate-divider::before,
+.ornate-divider::after {
+  content: '';
+  height: 1px;
+  flex: 1;
+  background: linear-gradient(90deg, transparent, rgba(217, 173, 69, 0.4), transparent);
+}
+
+/* Print Styles for Invoices */
+@media print {
+  body {
+    background: #FFFFFF !important;
+    color: #000000 !important;
+  }
+  .no-print {
+    display: none !important;
+  }
+  .print-only {
+    display: block !important;
+  }
+  .invoice-container {
+    box-shadow: none !important;
+    border: 1px solid #CCCCCC !important;
+    color: #111111 !important;
+    background: #FFFFFF !important;
+  }
+}

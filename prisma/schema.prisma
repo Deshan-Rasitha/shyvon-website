@@ -1,0 +1,204 @@
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model AdminUser {
+  id           String    @id @default(uuid())
+  email        String    @unique
+  name         String
+  role         String    @default("SUPER_ADMIN") // SUPER_ADMIN, MANAGER, STAFF
+  passwordHash String?   // Used for secure local dev admin login
+  googleId     String?   @unique
+  isActive     Boolean   @default(true)
+  lastLoginAt  DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+}
+
+model Customer {
+  id           String    @id @default(uuid())
+  email        String    @unique
+  name         String
+  phone        String?
+  whatsapp     String?
+  passwordHash String
+  address      String?
+  city         String?
+  isActive     Boolean   @default(true)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  orders       Order[]
+  reviews      Review[]
+}
+
+model Category {
+  id           String            @id @default(uuid())
+  slug         String            @unique
+  name         String
+  description  String?
+  image        String?
+  displayOrder Int               @default(0)
+  isActive     Boolean           @default(true)
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+  products     ProductCategory[]
+}
+
+model Product {
+  id                   String                 @id @default(uuid())
+  slug                 String                 @unique
+  name                 String
+  brand                String                 @default("SHYVON")
+  netWeight            String                 @default("50g")
+  price                Float
+  discountPrice        Float?
+  stock                Int                    @default(0)
+  sku                  String                 @unique
+  isActive             Boolean                @default(true)
+  isFeatured           Boolean                @default(false)
+  shortDescription     String
+  description          String
+  ingredients          String                 // Text or JSON string
+  benefits             String                 // Text or JSON string
+  usageInstructions    String                 // Text or JSON string
+  storageInstructions  String
+  manufacturingInfo    String
+  metaTitle            String?
+  metaDescription      String?
+  createdAt            DateTime               @default(now())
+  updatedAt            DateTime               @updatedAt
+  categories           ProductCategory[]
+  images               ProductImage[]
+  orderItems           OrderItem[]
+  reviews              Review[]
+  inventoryAdjustments InventoryTransaction[]
+}
+
+model ProductCategory {
+  productId  String
+  categoryId String
+  product    Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@id([productId, categoryId])
+}
+
+model ProductImage {
+  id           String   @id @default(uuid())
+  productId    String
+  url          String
+  alt          String?
+  displayOrder Int      @default(0)
+  isPrimary    Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  product      Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+}
+
+model Order {
+  id              String               @id @default(uuid())
+  orderNumber     String               @unique // e.g. SHY-20261122-0001
+  customerId      String?
+  customerName    String
+  customerPhone   String
+  customerWhatsapp String
+  customerEmail   String?
+  deliveryAddress String
+  city            String
+  orderNotes      String?
+  subtotal        Float
+  deliveryFee     Float                @default(0)
+  finalTotal      Float
+  paymentMethod   String               @default("COD") // COD, BANK_TRANSFER
+  paymentStatus   String               @default("PENDING") // PENDING, VERIFYING, PAID
+  orderStatus     String               @default("PENDING") // PENDING, CONFIRMED, PROCESSING, SHIPPED, DELIVERED, CANCELLED
+  paymentProofUrl String?
+  createdAt       DateTime             @default(now())
+  updatedAt       DateTime             @updatedAt
+  customer        Customer?            @relation(fields: [customerId], references: [id])
+  items           OrderItem[]
+  statusHistory   OrderStatusHistory[]
+}
+
+model OrderItem {
+  id            String  @id @default(uuid())
+  orderId       String
+  productId     String
+  productName   String
+  productWeight String
+  unitPrice     Float
+  quantity      Int
+  itemTotal     Float
+  order         Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product       Product @relation(fields: [productId], references: [id])
+}
+
+model OrderStatusHistory {
+  id        String   @id @default(uuid())
+  orderId   String
+  status    String
+  notes     String?
+  changedBy String   @default("System")
+  createdAt DateTime @default(now())
+  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+}
+
+model InventoryTransaction {
+  id             String   @id @default(uuid())
+  productId      String
+  changeQuantity Int
+  previousStock  Int
+  newStock       Int
+  reason         String   // ORDER, RESTOCK, ADJUSTMENT, RETURN
+  referenceId    String?  // e.g. Order Number
+  notes          String?
+  createdAt      DateTime @default(now())
+  product        Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+}
+
+model Review {
+  id            String   @id @default(uuid())
+  productId     String
+  customerId    String?
+  customerName  String
+  customerEmail String?
+  rating        Int      @default(5)
+  title         String
+  comment       String
+  isApproved    Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  product       Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  customer      Customer? @relation(fields: [customerId], references: [id])
+}
+
+model WebsiteSettings {
+  id                     String   @id @default("default")
+  brandName              String   @default("SHYVON")
+  brandTagline           String   @default("Pure • Healthy • Delicious")
+  brandDescription       String   @default("SHYVON brings you the goodness of nature with pure and authentic Sri Lankan herbs. Pure by Nature, for a Healthier You.")
+  logoUrl                String?
+  contactPhone           String   @default("+94 77 123 4567")
+  whatsappNumber         String   @default("+94 77 123 4567")
+  businessEmail          String   @default("info@shyvon.com")
+  businessAddress        String   @default("Shylie Global Pvt Ltd, Gampaha, Sri Lanka")
+  bankName               String   @default("Commercial Bank of Ceylon")
+  bankAccountName        String   @default("Shylie Global Pvt Ltd")
+  bankAccountNumber      String   @default("100012345678")
+  bankBranch             String   @default("Gampaha Branch")
+  bankInstructions       String   @default("Please deposit the total order amount to the bank account above and upload the deposit slip or send it to our WhatsApp.")
+  isBankTransferEnabled  Boolean  @default(true)
+  isCodEnabled           Boolean  @default(true)
+  deliveryFeeStandard    Float    @default(350.0)
+  deliveryFeeFreeThreshold Float  @default(5000.0)
+  announcementText       String   @default("Complimentary Island-wide Delivery on Orders Over LKR 5,000")
+  announcementActive     Boolean  @default(true)
+  facebookUrl            String?  @default("https://facebook.com/shyvonfoods")
+  instagramUrl           String?  @default("https://instagram.com/shyvonfoods")
+  youtubeUrl             String?
+  qrTargetUrl            String   @default("https://shyvon.com")
+  updatedAt              DateTime @updatedAt
+}
